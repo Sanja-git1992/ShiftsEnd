@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
         codeFound = true;
 
         messageText.text =
-            "You found a note!\n\nCode: 413\n\nFind the exit.";
+            "You found a note!\n\nCode: 413\n\nThe enemy has appeared!\n\nReach the exit!";
 
         if (enemy != null)
         {
