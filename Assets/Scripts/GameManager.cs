@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public TextMeshProUGUI messageText;
+    public TextMeshProUGUI objectiveText;
     public GameObject winText;
     public GameObject loseText;
     public GameObject enemy;
@@ -13,6 +14,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        objectiveText.text = "OBJECTIVE:\n\nFind the code";
+
         messageText.text = "Find the code.";
 
         if (winText != null)
@@ -37,8 +40,10 @@ public class GameManager : MonoBehaviour
 
         codeFound = true;
 
+        objectiveText.text = "OBJECTIVE:\n\nReach the exit";
+
         messageText.text =
-            "You found a note!\n\nCode: 413\n\nThe enemy has appeared!\n\nReach the exit!";
+            "You found a note!\n\nCode: 413\n\nThe enemy is active!";
 
         if (enemy != null)
         {
@@ -52,6 +57,7 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
         messageText.gameObject.SetActive(false);
+        objectiveText.gameObject.SetActive(false);
 
         if (winText != null)
         {
@@ -72,6 +78,7 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
         messageText.gameObject.SetActive(false);
+        objectiveText.gameObject.SetActive(false);
 
         if (winText != null)
         {
