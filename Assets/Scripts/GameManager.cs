@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     public GameObject winText;
     public GameObject loseText;
     public GameObject enemy;
+    public TextMeshProUGUI timerText;
+    public float timer = 0f;
 
     public bool codeFound = false;
     public bool gameEnded = false;
@@ -18,6 +20,13 @@ public class GameManager : MonoBehaviour
         objectiveText.text = "OBJECTIVE:\n\nFind the code";
 
         messageText.text = "Find the code.";
+
+        timer = 0f;
+
+        if (timerText != null)
+        {
+           timerText.text = "TIME: 0.0";
+        }
 
         if (winText != null)
         {
@@ -36,12 +45,22 @@ public class GameManager : MonoBehaviour
     }
 
     void Update()
+{
+    if (!gameEnded)
     {
-        if (gameEnded && Input.GetKeyDown(KeyCode.R))
+        timer += Time.deltaTime;
+
+        if (timerText != null)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            timerText.text = "TIME: " + timer.ToString("F1");
         }
     }
+
+    if (gameEnded && Input.GetKeyDown(KeyCode.R))
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
 
     public void ShowCode()
     {
