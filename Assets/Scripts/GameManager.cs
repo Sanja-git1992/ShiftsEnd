@@ -4,118 +4,137 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+
     public TextMeshProUGUI messageText;
     public TextMeshProUGUI objectiveText;
+    public TextMeshProUGUI timerText;
+
     public GameObject winText;
     public GameObject loseText;
     public GameObject enemy;
-    public TextMeshProUGUI timerText;
-    public float timer = 0f;
+    public GameObject menuPanel;
 
     public bool codeFound = false;
     public bool gameEnded = false;
+    public bool gameStarted = false;
+
+    public float timer = 0f;
 
     void Start()
     {
-        objectiveText.text = "OBJECTIVE:\n\nFind the code";
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
-        messageText.text = "Find the code.";
-
+        gameStarted = false;
+        gameEnded = false;
+        codeFound = false;
         timer = 0f;
 
-        if (timerText != null)
-        {
-           timerText.text = "TIME: 0.0";
-        }
+        messageText.text = "";
+        objectiveText.text = "OBJECTIVE:\nFind the code";
+        timerText.text = "TIME: 0.0";
 
-        if (winText != null)
-        {
-            winText.SetActive(false);
-        }
-
-        if (loseText != null)
-        {
-            loseText.SetActive(false);
-        }
-
-        if (enemy != null)
-        {
-            enemy.SetActive(false);
-        }
+        winText.SetActive(false);
+        loseText.SetActive(false);
+        enemy.SetActive(false);
+        menuPanel.SetActive(true);
     }
 
     void Update()
 {
+    if (!gameStarted)
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            StartGame();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            QuitGame();
+        }
+
+        return;
+    }
+
     if (!gameEnded)
     {
         timer += Time.deltaTime;
-
-        if (timerText != null)
-        {
-            timerText.text = "TIME: " + timer.ToString("F1");
-        }
+        timerText.text = "TIME: " + timer.ToString("F1");
     }
 
     if (gameEnded && Input.GetKeyDown(KeyCode.R))
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
 
+    public void StartGame()
+    {
+        gameStarted = true;
+        Time.timeScale = 1f;
+
+        menuPanel.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
     public void ShowCode()
     {
-        if (gameEnded) return;
+        if (gameEnded || !gameStarted) return;
 
         codeFound = true;
 
-        objectiveText.text = "OBJECTIVE:\n\nReach the exit";
+        objectiveText.text = "OBJECTIVE:\nReach the exit";
 
         messageText.text =
-            "You found a note!\n\nCode: 413\n\nThe enemy is active!";
+            "You found a note!\n\nCode: 413\n\nThe enemy has appeared!";
 
-        if (enemy != null)
-        {
-            enemy.SetActive(true);
-        }
+        enemy.SetActive(true);
     }
 
     public void Escape()
     {
-        if (gameEnded) return;
+        if (gameEnded || !gameStarted) return;
 
         gameEnded = true;
+
         messageText.gameObject.SetActive(false);
         objectiveText.gameObject.SetActive(false);
 
-        if (winText != null)
-        {
-            winText.SetActive(true);
-        }
+        winText.SetActive(true);
     }
 
     public void DoorLocked()
     {
-        if (gameEnded) return;
+        if (gameEnded || !gameStarted) return;
 
         messageText.text = "Door locked!\nFind the code first.";
     }
 
     public void GameOver()
     {
-        if (gameEnded) return;
+        if (gameEnded || !gameStarted) return;
 
         gameEnded = true;
+
         messageText.gameObject.SetActive(false);
         objectiveText.gameObject.SetActive(false);
 
-        if (winText != null)
-        {
-            winText.SetActive(false);
-        }
+        winText.SetActive(false);
+        loseText.SetActive(true);
+    }
 
-        if (loseText != null)
-        {
-            loseText.SetActive(true);
-        }
+    public void QuitGame()
+    {
+
+    #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+    #else
+        Application.Quit();
+    #endif
     }
 }
