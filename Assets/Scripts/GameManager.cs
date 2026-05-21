@@ -13,6 +13,10 @@ public class GameManager : MonoBehaviour
     public GameObject loseText;
     public GameObject enemy;
     public GameObject menuPanel;
+    public TextMeshProUGUI livesText;
+    public int lives = 3;
+    public Transform playerStartPosition;
+    public GameObject player;
 
     public bool codeFound = false;
     public bool gameEnded = false;
@@ -39,6 +43,13 @@ public class GameManager : MonoBehaviour
         loseText.SetActive(false);
         enemy.SetActive(false);
         menuPanel.SetActive(true);
+
+        lives = 3;
+
+        if (livesText != null)
+        {
+            livesText.text = "LIVES: " + lives;
+        }
     }
 
     void Update()
@@ -113,6 +124,31 @@ public class GameManager : MonoBehaviour
         if (gameEnded || !gameStarted) return;
 
         messageText.text = "Door locked!\nFind the code first.";
+    }
+
+    public void LoseLife()
+    {
+        if (gameEnded || !gameStarted) return;
+
+        lives--;
+
+        if (livesText != null)
+        {
+        livesText.text = "LIVES: " + lives;
+        }
+
+        if (lives <= 0)
+        {
+        GameOver();
+        return;
+        }
+
+    messageText.text = "You were caught!\nLives left: " + lives;
+
+        if (player != null && playerStartPosition != null)
+        {
+        player.transform.position = playerStartPosition.position;
+        }
     }
 
     public void GameOver()

@@ -8,7 +8,7 @@ public class EnemyTouch : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            gameManager.GameOver();
+            gameManager.LoseLife();
         }
     }
 }
