@@ -8,8 +8,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI messageText;
     public TextMeshProUGUI objectiveText;
     public TextMeshProUGUI timerText;
-
-    public GameObject winText;
+    public TextMeshProUGUI winText;
     public GameObject loseText;
     public GameObject enemy;
     public GameObject menuPanel;
@@ -39,10 +38,25 @@ public class GameManager : MonoBehaviour
         objectiveText.text = "OBJECTIVE:\nFind the code";
         timerText.text = "TIME: 0.0";
 
-        winText.SetActive(false);
-        loseText.SetActive(false);
-        enemy.SetActive(false);
-        menuPanel.SetActive(true);
+        if (winText != null)
+        {
+            winText.gameObject.SetActive(false);
+        }
+
+        if (loseText != null)
+        {
+            loseText.SetActive(false);
+        }
+
+        if (enemy != null)
+        {
+            enemy.SetActive(false);
+        }
+
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(true);
+        }
 
         lives = 3;
 
@@ -113,10 +127,23 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
 
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         messageText.gameObject.SetActive(false);
         objectiveText.gameObject.SetActive(false);
 
-        winText.SetActive(true);
+        if (winText != null)
+        {
+            winText.text =
+                "YOU ESCAPED!\n\n" +
+                "Time: " + timer.ToString("F1") + " s\n" +
+                "Lives left: " + lives + "\n\n" +
+                "Press R to restart";
+
+            winText.gameObject.SetActive(true);
+        }
     }
 
     public void DoorLocked()
@@ -157,11 +184,22 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
 
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         messageText.gameObject.SetActive(false);
         objectiveText.gameObject.SetActive(false);
 
-        winText.SetActive(false);
-        loseText.SetActive(true);
+        if (winText != null)
+        {
+            winText.gameObject.SetActive(false);
+        }
+
+        if (loseText != null)
+        {
+            loseText.SetActive(true);
+        }
     }
 
     public void QuitGame()

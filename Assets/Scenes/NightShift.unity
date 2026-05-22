@@ -2567,7 +2567,7 @@ MonoBehaviour:
   messageText: {fileID: 776809943}
   objectiveText: {fileID: 636085379}
   timerText: {fileID: 2038970119}
-  winText: {fileID: 1593756050}
+  winText: {fileID: 1593756051}
   loseText: {fileID: 2000045576}
   enemy: {fileID: 1798283177}
   menuPanel: {fileID: 1230824084}
