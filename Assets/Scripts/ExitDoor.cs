@@ -10,7 +10,7 @@ public class ExitDoor : MonoBehaviour
     {
         if (playerNearby && Input.GetKeyDown(KeyCode.E))
         {
-            if (gameManager.codeFound)
+            if (gameManager.codeFound && TerminalUse.terminalActivated)
             {
                 gameManager.Escape();
             }
