@@ -1,39 +1,72 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    // =====================================================
+    // GLAVNI UI
+    // =====================================================
+
     public TextMeshProUGUI messageText;
     public TextMeshProUGUI objectiveText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI winText;
 
+    public TextMeshProUGUI livesText;
     public GameObject loseText;
-    public GameObject enemy;
+
+    // Stari početni meni - ostavljamo ga zbog postojećeg projekta
     public GameObject menuPanel;
 
-    public TextMeshProUGUI livesText;
-    public int lives = 3;
+    // Novi dizajnirani uvodni ekran
+    public GameObject introPanel;
+
+    // =====================================================
+    // NOVI STORY / OBJECTIVE PANEL
+    // =====================================================
+
+    public GameObject storyPanel;
+
+    public TextMeshProUGUI storyTitle;
+    public TextMeshProUGUI storyObjective;
+    public TextMeshProUGUI storyMessage;
+
+    // =====================================================
+    // GAMEPLAY OBJEKTI
+    // =====================================================
+
+    public GameObject enemy;
 
     public Transform playerStartPosition;
     public GameObject player;
 
-    // Objekti potrebni za reset nakon gubitka zivota
     public GameObject key;
     public GameObject exitBlocker;
+
+    // =====================================================
+    // STANJE IGRE
+    // =====================================================
+
+    public int lives = 3;
 
     public bool codeFound = false;
     public bool gameEnded = false;
     public bool gameStarted = false;
 
-    // Broj pronadenih puzzle tragova
     public int cluesFound = 0;
 
     public float timer = 0f;
 
+
+    // =====================================================
+    // START
+    // =====================================================
+
     void Start()
     {
+        // Igra je na početku pauzirana dok je IntroPanel otvoren
         Time.timeScale = 0f;
 
         Cursor.lockState = CursorLockMode.None;
@@ -41,21 +74,51 @@ public class GameManager : MonoBehaviour
 
         gameStarted = false;
         gameEnded = false;
+
         codeFound = false;
         cluesFound = 0;
-        timer = 0f;
 
-        // Reset statickih vrijednosti
+        timer = 0f;
+        lives = 3;
+
+        // Resetiramo puzzle varijable
         PuzzleKeypad.puzzleSolved = false;
         KeycardInteraction.hasKeycard = false;
         TerminalUse.terminalActivated = false;
 
-        messageText.text = "";
 
-        objectiveText.text =
-            "OBJECTIVE:\nFind code 413";
+        // -------------------------
+        // GLAVNI UI
+        // -------------------------
 
-        timerText.text = "TIME: 0.0";
+        if (messageText != null)
+        {
+            messageText.text = "";
+            messageText.gameObject.SetActive(false);
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text = "";
+            objectiveText.gameObject.SetActive(false);
+        }
+
+        if (timerText != null)
+        {
+            timerText.text = "TIME: 0.0";
+            timerText.gameObject.SetActive(false);
+        }
+
+        if (livesText != null)
+        {
+            livesText.text = "LIVES: " + lives;
+            livesText.gameObject.SetActive(false);
+        }
+
+
+        // -------------------------
+        // WIN / LOSE
+        // -------------------------
 
         if (winText != null)
         {
@@ -67,47 +130,86 @@ public class GameManager : MonoBehaviour
             loseText.SetActive(false);
         }
 
-        // Neprijatelj je ugasen dok se ne pronade 413
+
+        // -------------------------
+        // ENEMY
+        // -------------------------
+
         if (enemy != null)
         {
             enemy.SetActive(false);
         }
 
+
+        // -------------------------
+        // STARI MENU
+        // -------------------------
+
         if (menuPanel != null)
         {
-            menuPanel.SetActive(true);
+            menuPanel.SetActive(false);
         }
 
-        lives = 3;
 
-        if (livesText != null)
+        // -------------------------
+        // NOVI INTRO
+        // -------------------------
+
+        if (introPanel != null)
         {
-            livesText.text = "LIVES: " + lives;
+            introPanel.SetActive(true);
         }
 
-        // Kljuc je vidljiv, ali ga nije moguce uzeti
-        // dok se ne rijesi kod 729
+
+        // -------------------------
+        // STORY PANEL
+        // Na početku mora biti skriven.
+        // Pojavit će se tek nakon ENTER-a.
+        // -------------------------
+
+        if (storyPanel != null)
+        {
+            storyPanel.SetActive(false);
+        }
+
+
+        // -------------------------
+        // KEY
+        // -------------------------
+
         if (key != null)
         {
             key.SetActive(true);
         }
 
-        // Izlaz je zakljucan
+
+        // -------------------------
+        // EXIT BLOCKER
+        // -------------------------
+
         if (exitBlocker != null)
         {
             exitBlocker.SetActive(true);
         }
     }
 
+
+    // =====================================================
+    // UPDATE
+    // =====================================================
+
     void Update()
     {
+        // Dok igra još nije počela
         if (!gameStarted)
         {
+            // ENTER pokreće igru
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 StartGame();
             }
 
+            // ESC izlazi iz igre
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 QuitGame();
@@ -116,14 +218,21 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+
+        // Timer radi samo dok igra traje
         if (!gameEnded)
         {
             timer += Time.deltaTime;
 
-            timerText.text =
-                "TIME: " + timer.ToString("F1");
+            if (timerText != null)
+            {
+                timerText.text =
+                    "TIME: " + timer.ToString("F1");
+            }
         }
 
+
+        // Restart nakon pobjede ili Game Overa
         if (gameEnded && Input.GetKeyDown(KeyCode.R))
         {
             Time.timeScale = 1f;
@@ -134,24 +243,105 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    // =====================================================
+    // START GAME
+    // =====================================================
+
     public void StartGame()
     {
         gameStarted = true;
 
         Time.timeScale = 1f;
 
+
+        // Sakrij uvodni ekran
+        if (introPanel != null)
+        {
+            introPanel.SetActive(false);
+        }
+
+
+        // Sakrij stari meni
         if (menuPanel != null)
         {
             menuPanel.SetActive(false);
         }
 
+
+        // Uključi gameplay UI
+        if (timerText != null)
+        {
+            timerText.gameObject.SetActive(true);
+        }
+
+        if (livesText != null)
+        {
+            livesText.gameObject.SetActive(true);
+        }
+
+
+        // Zaključaj miš za FPS kontrolu
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+
+        // Prva poruka priče
+        ShowStoryMessage(
+            "SECURITY SYSTEM OFFLINE",
+            "OBJECTIVE 01",
+            "Emergency access requires the security code.\nSearch the office for the security code.",
+            5f
+        );
     }
 
-    // --------------------------------------------------
-    // POCETNI KOD 413
-    // --------------------------------------------------
+
+    // =====================================================
+    // STORY PANEL
+    // =====================================================
+
+    public void ShowStoryMessage(
+    string title,
+    string objective,
+    string message,
+    float duration = 5f)
+{
+    if (storyPanel == null)
+    {
+        return;
+    }
+
+    if (storyTitle != null)
+    {
+        storyTitle.text = title;
+    }
+
+    if (storyObjective != null)
+    {
+        storyObjective.text = objective;
+    }
+
+    if (storyMessage != null)
+    {
+        storyMessage.text = message;
+    }
+
+    storyPanel.SetActive(true);
+
+    StartCoroutine(HideStoryPanelAfterTime(duration));
+}
+
+private IEnumerator HideStoryPanelAfterTime(float duration)
+{
+    yield return new WaitForSeconds(duration);
+
+    storyPanel.SetActive(false);
+}
+
+
+    // =====================================================
+    // PRONALAZAK PRVOG KODA 413
+    // =====================================================
 
     public void ShowCode()
     {
@@ -160,102 +350,68 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+
         codeFound = true;
 
-        // Nakon 413 igrac treba traziti tri puzzle traga
-        objectiveText.text =
-            "OBJECTIVE:\nFind the puzzle clues\nCLUES FOUND: 0/3";
 
-        messageText.text =
-            "You found the first code!\n\n" +
-            "Code: 413\n\n" +
-            "The enemy has appeared!";
+        // Stari MessageText više nam ne treba za ovu poruku
+        if (messageText != null)
+        {
+            messageText.text =
+                "You found a note!\n\nCode: 413\n\nThe enemy has appeared!";
+        }
 
-        // Pronalaženje 413 aktivira neprijatelja
+
+        // Aktiviraj neprijatelja
         if (enemy != null)
         {
             enemy.SetActive(true);
         }
+
+
+        // Novi StoryPanel
+        ShowStoryMessage(
+            "SECURITY BREACH",
+            "OBJECTIVE 02",
+            "Code 413 accepted.\nSomething is moving in the building.\nFind the puzzle clues.",
+            5f
+        );
     }
+    // =====================================================
+    // PRONALAZAK PUZZLE TRAGOVA
+    // =====================================================
 
-    // --------------------------------------------------
-    // PUZZLE TRAGOVI 7 - 2 - 9
-    // --------------------------------------------------
-
-    public void ClueFound()
+public void ClueFound()
+{
+    if (gameEnded || !gameStarted)
     {
-        if (gameEnded || !gameStarted)
-        {
-            return;
-        }
-
-        // Tragovi se broje tek nakon pronalaska 413
-        if (!codeFound)
-        {
-            return;
-        }
-
-        // Maksimalno tri traga
-        if (cluesFound < 3)
-        {
-            cluesFound++;
-        }
-
-        // Ako jos nisu pronadena sva tri
-        if (cluesFound < 3)
-        {
-            objectiveText.text =
-                "OBJECTIVE:\nFind the puzzle clues\n" +
-                "CLUES FOUND: " + cluesFound + "/3";
-        }
-        else
-        {
-            // Sva tri traga su pronadena
-            objectiveText.text =
-                "OBJECTIVE:\nEnter the 3-digit code at the keypad\n" +
-                "CLUES FOUND: 3/3";
-
-            messageText.text +=
-                "\n\nAll clues found!";
-        }
+        return;
     }
 
-    // --------------------------------------------------
-    // POBJEDA
-    // --------------------------------------------------
+    cluesFound++;
 
-    public void Escape()
+    // Ne dopuštamo da broj prijeđe 3
+    if (cluesFound > 3)
     {
-        if (gameEnded || !gameStarted)
-        {
-            return;
-        }
-
-        gameEnded = true;
-
-        Time.timeScale = 0f;
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        messageText.gameObject.SetActive(false);
-        objectiveText.gameObject.SetActive(false);
-
-        if (winText != null)
-        {
-            winText.text =
-                "YOU ESCAPED!\n\n" +
-                "Time: " + timer.ToString("F1") + " s\n" +
-                "Lives left: " + lives + "\n\n" +
-                "Press R to restart";
-
-            winText.gameObject.SetActive(true);
-        }
+        cluesFound = 3;
     }
 
-    // --------------------------------------------------
-    // ZAKLJUCANA VRATA
-    // --------------------------------------------------
+    // Kada igrač pronađe sva 3 traga
+    if (cluesFound >= 3)
+    {
+        ShowStoryMessage(
+            "CLUES COMPLETE",
+            "OBJECTIVE 03",
+            "You found all three clues.\nUse them to discover the 3-digit code.",
+            5f
+        );
+    }
+}
+
+
+    // =====================================================
+    // IGRAČ JE DOŠAO DO ZAKLJUČANIH VRATA
+    // =====================================================
 
     public void DoorLocked()
     {
@@ -264,13 +420,19 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        messageText.text =
-            "Door locked!\nComplete the objectives first.";
+
+        ShowStoryMessage(
+            "ACCESS DENIED",
+            "DOOR LOCKED",
+            "The exit is still locked.\nComplete the security procedure first.",
+            4f
+        );
     }
 
-    // --------------------------------------------------
-    // GUBITAK ZIVOTA
-    // --------------------------------------------------
+
+    // =====================================================
+    // IGRAČ GUBI ŽIVOT
+    // =====================================================
 
     public void LoseLife()
     {
@@ -279,7 +441,9 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+
         lives--;
+
 
         if (livesText != null)
         {
@@ -287,18 +451,16 @@ public class GameManager : MonoBehaviour
                 "LIVES: " + lives;
         }
 
+
+        // Ako nema više života -> Game Over
         if (lives <= 0)
         {
             GameOver();
             return;
         }
 
-        messageText.text =
-            "You were caught!\n" +
-            "Lives left: " + lives +
-            "\nPuzzle progress reset!";
 
-        // Vracamo igraca u Room1
+        // Vrati igrača na PlayerStart
         if (player != null &&
             playerStartPosition != null)
         {
@@ -306,90 +468,45 @@ public class GameManager : MonoBehaviour
                 playerStartPosition.position;
         }
 
-        // --------------------------------------------------
-        // RESET NAKON GUBITKA ZIVOTA
-        // --------------------------------------------------
 
-        // 413 se NE resetira.
-        // Neprijatelj zato ostaje aktivan.
-
-        // Kod 729 ponovno nije rijesen
+        // Reset puzzlea 729
         PuzzleKeypad.puzzleSolved = false;
 
-        // Igrac ponovno nema kljuc
+
+        // Reset ključa
         KeycardInteraction.hasKeycard = false;
 
-        // Kljuc se ponovno pojavljuje
         if (key != null)
         {
             key.SetActive(true);
         }
 
-        // Terminal se resetira
+
+        // Reset terminala
         TerminalUse.terminalActivated = false;
 
-        // Izlaz se ponovno zakljucava
+
+        // Ponovno zaključaj izlaz
         if (exitBlocker != null)
         {
             exitBlocker.SetActive(true);
         }
 
-        /*
-         * Tragove namjerno NE resetiramo.
-         *
-         * Igrac je vec otkrio 7, 2 i 9.
-         * Nakon smrti mora ponovno unijeti 729,
-         * uzeti kljuc i koristiti terminal.
-         */
-        if (cluesFound >= 3)
-        {
-            objectiveText.text =
-                "OBJECTIVE:\nEnter the 3-digit code at the keypad\n" +
-                "CLUES FOUND: 3/3";
-        }
-        else
-        {
-            objectiveText.text =
-                "OBJECTIVE:\nFind the puzzle clues\n" +
-                "CLUES FOUND: " + cluesFound + "/3";
-        }
+
+        // Obavijest igraču
+        ShowStoryMessage(
+            "YOU WERE CAUGHT",
+            "SECURITY RESET",
+            "Lives left: " + lives +
+            "\nPuzzle progress has been reset.",
+            4f
+        );
     }
 
-    // --------------------------------------------------
-    // GAME OVER
-    // --------------------------------------------------
 
-    public void GameOver()
-    {
-        if (gameEnded || !gameStarted)
-        {
-            return;
-        }
-
-        gameEnded = true;
-
-        Time.timeScale = 0f;
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        messageText.gameObject.SetActive(false);
-        objectiveText.gameObject.SetActive(false);
-
-        if (winText != null)
-        {
-            winText.gameObject.SetActive(false);
-        }
-
-        if (loseText != null)
-        {
-            loseText.SetActive(true);
-        }
-    }
-
-    // --------------------------------------------------
-    // ZAVRSNI TERMINAL
-    // --------------------------------------------------
+    // =====================================================
+    // TERMINAL JE AKTIVIRAN
+    // =====================================================
 
     public void TerminalActivated()
     {
@@ -398,23 +515,138 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        messageText.text =
-            "ACCESS GRANTED!\nExit unlocked.";
 
-        objectiveText.text =
-            "OBJECTIVE:\nReach the EXIT";
+        ShowStoryMessage(
+            "ACCESS GRANTED",
+            "FINAL OBJECTIVE",
+            "The emergency exit is unlocked.\nReach the exit.",
+            5f
+        );
     }
 
-    // --------------------------------------------------
-    // IZLAZ IZ IGRE
-    // --------------------------------------------------
+
+    // =====================================================
+    // POBJEDA
+    // =====================================================
+
+    public void Escape()
+    {
+        if (gameEnded || !gameStarted)
+        {
+            return;
+        }
+
+
+        gameEnded = true;
+
+        Time.timeScale = 0f;
+
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+
+        // Sakrij StoryPanel
+        if (storyPanel != null)
+        {
+            storyPanel.SetActive(false);
+        }
+
+
+        if (messageText != null)
+        {
+            messageText.gameObject.SetActive(false);
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.gameObject.SetActive(false);
+        }
+
+
+        // Prikaži pobjedu
+        if (winText != null)
+        {
+            winText.text =
+                "YOU ESCAPED!\n\n" +
+                "Time: " +
+                timer.ToString("F1") +
+                " s\n" +
+                "Lives left: " +
+                lives +
+                "\n\nPress R to restart";
+
+            winText.gameObject.SetActive(true);
+        }
+    }
+
+
+    // =====================================================
+    // GAME OVER
+    // =====================================================
+
+    public void GameOver()
+    {
+        if (gameEnded || !gameStarted)
+        {
+            return;
+        }
+
+
+        gameEnded = true;
+
+        Time.timeScale = 0f;
+
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+
+        // Sakrij StoryPanel
+        if (storyPanel != null)
+        {
+            storyPanel.SetActive(false);
+        }
+
+
+        if (messageText != null)
+        {
+            messageText.gameObject.SetActive(false);
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.gameObject.SetActive(false);
+        }
+
+
+        if (winText != null)
+        {
+            winText.gameObject.SetActive(false);
+        }
+
+
+        if (loseText != null)
+        {
+            loseText.SetActive(true);
+        }
+    }
+
+
+    // =====================================================
+    // QUIT
+    // =====================================================
 
     public void QuitGame()
     {
 #if UNITY_EDITOR
+
         UnityEditor.EditorApplication.isPlaying = false;
+
 #else
+
         Application.Quit();
+
 #endif
     }
 }
