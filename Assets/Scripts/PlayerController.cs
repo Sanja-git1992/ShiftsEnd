@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -8,6 +9,9 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private float rotationX = 0f;
     private Camera playerCamera;
+
+    // Koristi se za privremeno blokiranje upravljanja
+    public bool controlsEnabled = true;
 
     void Start()
     {
@@ -20,11 +24,17 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!controlsEnabled)
+            return;
+
         LookAround();
     }
 
     void FixedUpdate()
     {
+        if (!controlsEnabled)
+            return;
+
         MovePlayer();
     }
 
@@ -61,11 +71,10 @@ public class PlayerController : MonoBehaviour
             70f
         );
 
-        playerCamera.transform.localRotation =
-            Quaternion.Euler(
-                rotationX,
-                0f,
-                0f
-            );
+        if (playerCamera != null)
+        {
+            playerCamera.transform.localRotation =
+                Quaternion.Euler(rotationX, 0f, 0f);
+        }
     }
 }

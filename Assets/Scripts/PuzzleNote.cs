@@ -1,56 +1,88 @@
+
 using UnityEngine;
 
 public class PuzzleNote : MonoBehaviour
 {
     public GameManager gameManager;
+    public DocumentReader documentReader;
 
-    // Tekst koji se razlikuje za svaki papir:
-    // CLUE 1 - First digit: 7
-    // CLUE 2 - Second digit: 2
-    // CLUE 3 - Third digit: 9
+    public GameObject interactionText;
+
     public string clueText = "CLUE";
 
     private bool playerNear = false;
-
-    // Pamti je li ovaj konkretni trag vec pronaden
     private bool clueFound = false;
+
+    void Start()
+    {
+        if (interactionText != null)
+            interactionText.SetActive(false);
+    }
 
     void Update()
     {
-        if (playerNear && Input.GetKeyDown(KeyCode.E))
-        {
-            if (gameManager == null)
-            {
-                return;
-            }
+        if (gameManager == null)
+            return;
 
-            // Prvo se mora pronaci pocetni kod 413
-            if (!gameManager.codeFound)
+        bool canInteract =
+            playerNear &&
+            gameManager.gameStarted &&
+            !gameManager.gameEnded;
+
+        bool documentIsOpen =
+            documentReader != null &&
+            documentReader.IsDocumentOpen;
+
+        if (interactionText != null)
+        {
+            interactionText.SetActive(
+                canInteract && !documentIsOpen
+            );
+        }
+
+        if (!canInteract || documentIsOpen)
+            return;
+
+        if (!Input.GetKeyDown(KeyCode.E))
+            return;
+
+        if (!gameManager.codeFound)
+        {
+            if (gameManager.messageText != null)
             {
                 gameManager.messageText.text =
                     "Find the first code before searching for clues.";
 
-                return;
+                gameManager.messageText.gameObject.SetActive(true);
             }
 
-            // Prikazujemo tekst traga
+            return;
+        }
+
+        if (documentReader != null)
+        {
+            if (gameManager.messageText != null)
+                gameManager.messageText.gameObject.SetActive(false);
+
+            documentReader.OpenDocument();
+        }
+        else if (gameManager.messageText != null)
+        {
             gameManager.messageText.text = clueText;
+            gameManager.messageText.gameObject.SetActive(true);
+        }
 
-            // Brojimo ovaj papir samo prvi put
-            if (!clueFound)
-            {
-                clueFound = true;
-                gameManager.ClueFound();
-            }
+        if (!clueFound)
+        {
+            clueFound = true;
+            gameManager.ClueFound();
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-        {
             playerNear = true;
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -58,6 +90,15 @@ public class PuzzleNote : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNear = false;
+
+            if (interactionText != null)
+                interactionText.SetActive(false);
         }
+    }
+
+    private void OnDisable()
+    {
+        if (interactionText != null)
+            interactionText.SetActive(false);
     }
 }
