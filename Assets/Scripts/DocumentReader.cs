@@ -1,22 +1,28 @@
 
 using UnityEngine;
+using TMPro;
 
 public class DocumentReader : MonoBehaviour
 {
     public GameObject documentPanel;
     public PlayerController playerController;
 
+    public TMP_Text documentTitle;
+    public TMP_Text documentBody;
+    public TMP_Text documentHint;
+
     private bool documentOpen = false;
     public bool IsDocumentOpen => documentOpen;
+
     private float previousTimeScale = 1f;
 
-    void Start()
+    private void Start()
     {
         if (documentPanel != null)
             documentPanel.SetActive(false);
     }
 
-    void Update()
+    private void Update()
     {
         if (documentOpen && Input.GetKeyDown(KeyCode.Return))
         {
@@ -24,7 +30,34 @@ public class DocumentReader : MonoBehaviour
         }
     }
 
+    // Zadrzava podrsku za postojeci prvi dokument.
     public void OpenDocument()
+    {
+        ShowDocument();
+    }
+
+    // Novi dokumenti mogu prikazivati vlastiti tekst.
+    public void OpenDocument(
+        string title,
+        string body,
+        string hint)
+    {
+        if (documentOpen || documentPanel == null)
+            return;
+
+        if (documentTitle != null)
+            documentTitle.text = title;
+
+        if (documentBody != null)
+            documentBody.text = body;
+
+        if (documentHint != null)
+            documentHint.text = hint;
+
+        ShowDocument();
+    }
+
+    private void ShowDocument()
     {
         if (documentPanel == null || documentOpen)
             return;
@@ -33,8 +66,6 @@ public class DocumentReader : MonoBehaviour
         documentOpen = true;
 
         documentPanel.SetActive(true);
-
-        // Zaustavi vrijeme i upravljanje igracem
         Time.timeScale = 0f;
 
         if (playerController != null)
@@ -52,7 +83,6 @@ public class DocumentReader : MonoBehaviour
         documentOpen = false;
         documentPanel.SetActive(false);
 
-        // Vrati prethodno stanje igre
         Time.timeScale = previousTimeScale;
 
         if (playerController != null)
@@ -62,10 +92,10 @@ public class DocumentReader : MonoBehaviour
         Cursor.visible = false;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        // Sigurnosna zastita ako se komponenta iskljuci
         if (documentOpen)
             CloseDocument();
     }
 }
+

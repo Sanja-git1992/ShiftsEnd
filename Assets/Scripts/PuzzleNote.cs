@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PuzzleNote : MonoBehaviour
 {
+    public static bool FirstClueFound = false;
     public GameManager gameManager;
     public DocumentReader documentReader;
 
@@ -75,6 +76,7 @@ public class PuzzleNote : MonoBehaviour
         if (!clueFound)
         {
             clueFound = true;
+            FirstClueFound = true;
             gameManager.ClueFound();
         }
     }
@@ -100,5 +102,10 @@ public class PuzzleNote : MonoBehaviour
     {
         if (interactionText != null)
             interactionText.SetActive(false);
+    }
+
+    private void Awake()
+    {
+        FirstClueFound = false;
     }
 }
