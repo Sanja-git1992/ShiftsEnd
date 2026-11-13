@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1991880
 Transform:
   m_ObjectHideFlags: 0
@@ -187,6 +187,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransition
   targetScene: NightShift_Final
   interactionKey: 101
+  requireReceptionDocument: 1
+  receptionDocument: {fileID: 405746882}
 --- !u!1 &46675953
 GameObject:
   m_ObjectHideFlags: 0

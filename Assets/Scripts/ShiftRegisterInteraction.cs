@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ShiftRegisterInteraction : MonoBehaviour
 {
+    public bool HasBeenRead { get; private set; } = false;
+
     public GameObject documentPanel;
     public PlayerController playerController;
 
@@ -24,9 +26,8 @@ public class ShiftRegisterInteraction : MonoBehaviour
         {
             OpenDocument();
         }
-
-        if (documentOpen &&
-            Input.GetKeyDown(KeyCode.Return))
+        else if (documentOpen &&
+                 Input.GetKeyDown(KeyCode.Return))
         {
             CloseDocument();
         }
@@ -49,6 +50,8 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        Debug.Log("Reception document opened.");
     }
 
     void CloseDocument()
@@ -57,6 +60,9 @@ public class ShiftRegisterInteraction : MonoBehaviour
             return;
 
         documentOpen = false;
+
+        // Dokument se smatra procitanim nakon zatvaranja.
+        HasBeenRead = true;
 
         if (documentPanel != null)
             documentPanel.SetActive(false);
@@ -68,6 +74,8 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        Debug.Log("Reception document read. Access granted.");
     }
 
     void OnTriggerEnter(Collider other)
