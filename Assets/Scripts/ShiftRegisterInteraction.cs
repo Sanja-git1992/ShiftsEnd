@@ -4,9 +4,11 @@ using UnityEngine;
 public class ShiftRegisterInteraction : MonoBehaviour
 {
     public GameObject documentPanel;
+    public PlayerController playerController;
 
     private bool playerNear = false;
     private bool documentOpen = false;
+    private float previousTimeScale = 1f;
 
     void Start()
     {
@@ -16,7 +18,8 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
     void Update()
     {
-        if (playerNear && !documentOpen &&
+        if (!documentOpen &&
+            playerNear &&
             Input.GetKeyDown(KeyCode.E))
         {
             OpenDocument();
@@ -31,11 +34,16 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
     void OpenDocument()
     {
-        if (documentPanel == null)
+        if (documentPanel == null || documentOpen)
             return;
 
+        previousTimeScale = Time.timeScale;
         documentOpen = true;
+
         documentPanel.SetActive(true);
+
+        if (playerController != null)
+            playerController.controlsEnabled = false;
 
         Time.timeScale = 0f;
 
@@ -45,10 +53,18 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
     void CloseDocument()
     {
-        documentOpen = false;
-        documentPanel.SetActive(false);
+        if (!documentOpen)
+            return;
 
-        Time.timeScale = 1f;
+        documentOpen = false;
+
+        if (documentPanel != null)
+            documentPanel.SetActive(false);
+
+        Time.timeScale = previousTimeScale;
+
+        if (playerController != null)
+            playerController.controlsEnabled = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

@@ -14,21 +14,30 @@ public class PlayerController : MonoBehaviour
     public bool controlsEnabled = true;
 
     void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        playerCamera = GetComponentInChildren<Camera>();
+{
+    rb = GetComponent<Rigidbody>();
+    playerCamera = GetComponentInChildren<Camera>();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
+    // Privremeno ponovno pokreni vrijeme
+    Time.timeScale = 1f;
+
+    Cursor.lockState = CursorLockMode.Locked;
+    Cursor.visible = false;
+}
 
     void Update()
+{
+    if (Input.GetKeyDown(KeyCode.P))
     {
-        if (!controlsEnabled)
-            return;
-
-        LookAround();
+        Debug.Log("Time Scale: " + Time.timeScale);
+        Debug.Log("Controls Enabled: " + controlsEnabled);
     }
+
+    if (!controlsEnabled)
+        return;
+
+    LookAround();
+}
 
     void FixedUpdate()
     {
@@ -39,17 +48,23 @@ public class PlayerController : MonoBehaviour
     }
 
     void MovePlayer()
+{
+    float moveX = Input.GetAxis("Horizontal");
+    float moveZ = Input.GetAxis("Vertical");
+
+    // Privremena provjera tipkovnice
+    if (Mathf.Abs(moveX) > 0.01f || Mathf.Abs(moveZ) > 0.01f)
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-
-        rb.MovePosition(
-            rb.position +
-            move * moveSpeed * Time.fixedDeltaTime
-        );
+        Debug.Log("WASD INPUT: X=" + moveX + " Z=" + moveZ);
     }
+
+    Vector3 move = transform.right * moveX + transform.forward * moveZ;
+
+    rb.MovePosition(
+        rb.position +
+        move * moveSpeed * Time.fixedDeltaTime
+    );
+}
 
     void LookAround()
     {
