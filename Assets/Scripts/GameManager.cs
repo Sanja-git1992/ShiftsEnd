@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
         gameStarted = false;
         gameEnded = false;
 
-        codeFound = false;
+        codeFound = ReceptionProgress.DocumentRead;
         cluesFound = 0;
 
         timer = 0f;

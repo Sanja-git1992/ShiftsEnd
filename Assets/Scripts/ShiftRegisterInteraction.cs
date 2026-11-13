@@ -63,6 +63,7 @@ public class ShiftRegisterInteraction : MonoBehaviour
 
         // Dokument se smatra procitanim nakon zatvaranja.
         HasBeenRead = true;
+        ReceptionProgress.DocumentRead = true;
 
         if (documentPanel != null)
             documentPanel.SetActive(false);
